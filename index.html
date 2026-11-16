@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+</head>
+<body>
+<title>ภารกิจเศษส่วน ป.4</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mali:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: graph-paper notebook; level path on the map screen, one big question card in play */
+:root{
+  --bg:#E6F3EE; --grid:#CFE5DB; --ink:#1F2A44; --muted:#56637E; --paper:#FFFFFF;
+  --fill:#FF8A3D; --fill2:#4C7DF0; --ok:#17A06A; --okbg:#E2F7EC; --bad:#E0454B; --badbg:#FDE9EA;
+  --sun:#FFC23D; --lock:#B8C2CF;
+  --c1:#FF6B5B; --c2:#F5A300; --c3:#13A99A; --c4:#4C7DF0; --c5:#9B5DE5;
+  --font:"Mali","Leelawadee UI","Tahoma",system-ui,sans-serif;
+  --r:18px; --shadow:0 5px 0 rgba(31,42,68,.22);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{
+  margin:0;font-family:var(--font);color:var(--ink);font-size:17px;line-height:1.55;
+  background-color:var(--bg);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px;
+}
+.app{max-width:780px;margin:0 auto;padding-block:20px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+button{font-family:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--fill2);outline-offset:3px}
+
+/* fractions */
+.fr{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1.08;margin:0 .12em;font-variant-numeric:tabular-nums;font-weight:700}
+.fr>span{padding:0 .22em}
+.fr>span:first-child{border-bottom:.09em solid currentColor}
+.mx{display:inline-flex;align-items:center;font-weight:700}
+.mx>.w{font-size:1.35em;margin-right:.05em}
+.n{font-weight:700;font-size:1.25em;font-variant-numeric:tabular-nums}
+.op{display:inline-block;margin:0 .35em;font-weight:700;font-size:1.25em}
+.q{color:var(--fill2)}
+
+/* ---------- map screen ---------- */
+.hero{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin-bottom:22px}
+.logo{flex:none;width:92px;height:92px;filter:drop-shadow(0 5px 0 rgba(31,42,68,.2))}
+.hero h1{margin:0;font-size:clamp(30px,6vw,44px);line-height:1.15;text-wrap:balance}
+.hero h1 b{color:var(--fill)}
+.hero p{margin:4px 0 0;color:var(--muted)}
+.hero .meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--paper);border:2px solid var(--ink);border-radius:999px;padding:3px 12px;font-weight:600;font-size:15px}
+.chip svg{width:18px;height:18px}
+
+.path{list-style:none;margin:0;padding:0;display:grid;gap:18px;position:relative}
+.path::before{content:"";position:absolute;left:38px;top:30px;bottom:30px;border-left:4px dashed rgba(31,42,68,.25)}
+.lv{position:relative;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;
+  background:var(--paper);border:2.5px solid var(--ink);border-radius:var(--r);padding:14px 16px;box-shadow:var(--shadow)}
+.lv .badge{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:22px;border:2.5px solid var(--ink);background:var(--lc)}
+.lv h2{margin:0;font-size:20px;line-height:1.3}
+.lv p{margin:2px 0 6px;color:var(--muted);font-size:15px}
+.lv .info{min-width:0}
+.stars{display:inline-flex;gap:3px}
+.stars svg{width:22px;height:22px}
+.star-on{fill:var(--sun);stroke:var(--ink);stroke-width:1.6}
+.star-off{fill:#E3E8EF;stroke:#B5BFCC;stroke-width:1.6}
+.btn{border:2.5px solid var(--ink);border-radius:14px;background:var(--sun);font-weight:700;font-size:17px;padding:10px 18px;box-shadow:0 4px 0 var(--ink);transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.alt{background:var(--paper)}
+.btn.go{background:var(--lc,var(--sun));color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.25)}
+.mixcard{margin-top:18px;background:#FFF6DC}
+.lv.locked{background:#F3F5F8}
+.lv.locked .badge{background:var(--lock)}
+.lv.locked h2,.lv.locked p{color:#8A95A8}
+.lockmsg{font-size:13px;color:#8A95A8;max-width:120px;text-align:center;line-height:1.3}
+.lockmsg svg{width:22px;height:22px;display:block;margin:0 auto 2px}
+.foot{margin-top:24px;display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;color:var(--muted);font-size:14px}
+.foot label{display:inline-flex;gap:8px;align-items:center;cursor:pointer}
+.foot input{width:18px;height:18px;accent-color:var(--fill2)}
+.linkbtn{background:none;border:none;text-decoration:underline;color:var(--muted);font-size:14px;padding:4px}
+.confirm{display:inline-flex;gap:8px;align-items:center;flex-wrap:wrap}
+.confirm .btn{font-size:14px;padding:5px 12px;box-shadow:0 3px 0 var(--ink)}
+
+/* ---------- game screen ---------- */
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.iconbtn{flex:none;width:44px;height:44px;border-radius:12px;border:2.5px solid var(--ink);background:var(--paper);display:grid;place-items:center;box-shadow:0 3px 0 var(--ink)}
+.iconbtn svg{width:22px;height:22px}
+.iconbtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.tb-title{flex:1;min-width:0}
+.tb-title small{display:block;color:var(--muted);font-size:13px;line-height:1.2}
+.tb-title strong{font-size:19px;line-height:1.25;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.score{flex:none;background:var(--paper);border:2.5px solid var(--ink);border-radius:12px;padding:4px 12px;font-weight:700;font-variant-numeric:tabular-nums}
+
+.dots{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin-bottom:16px}
+.dot{height:30px;border-radius:9px;border:2px solid var(--ink);background:var(--paper);display:grid;place-items:center;font-size:13px;font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.dot.cur{background:var(--sun);color:var(--ink);transform:translateY(-3px);box-shadow:0 3px 0 var(--ink)}
+.dot.ok{background:var(--ok);color:#fff}
+.dot.bad{background:var(--bad);color:#fff}
+
+.card{background:var(--paper);border:2.5px solid var(--ink);border-radius:22px;box-shadow:0 7px 0 rgba(31,42,68,.22);padding:22px clamp(16px,4vw,30px) 24px}
+.qhead{display:flex;align-items:center;gap:10px;margin-bottom:6px;color:var(--muted);font-size:14px;font-weight:600}
+.qhead .tag{background:var(--lc);color:#fff;border-radius:8px;padding:1px 10px;border:2px solid var(--ink)}
+.prompt{font-size:clamp(20px,4.2vw,25px);font-weight:600;line-height:1.6;margin:4px 0 14px;text-wrap:balance}
+.visual{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;align-items:center;margin:6px 0 18px;min-height:20px}
+.visual:empty{display:none}
+.bigfr{font-size:clamp(40px,9vw,54px);color:var(--ink)}
+.eq{font-size:clamp(30px,7vw,42px);display:flex;align-items:center;flex-wrap:wrap;justify-content:center;gap:.1em}
+.shape{max-width:100%;height:auto}
+.shape path,.shape circle,.shape rect{stroke:var(--ink);stroke-width:2.2;stroke-linejoin:round}
+.shape .on{fill:var(--fill)} .shape .on2{fill:var(--fill2)} .shape .off{fill:#fff}
+.barwrap{width:min(100%,360px);display:grid;gap:6px}
+.barwrap .lbl{font-size:14px;color:var(--muted);font-weight:600}
+.legend{display:flex;gap:14px;justify-content:center;font-size:14px;color:var(--muted);width:100%;flex-wrap:wrap}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:4px;border:2px solid var(--ink);vertical-align:-2px;margin-right:5px}
+
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.choice{display:flex;align-items:center;gap:12px;min-height:76px;text-align:left;background:var(--paper);border:2.5px solid var(--ink);border-radius:16px;padding:10px 14px;font-size:clamp(17px,3.6vw,21px);box-shadow:0 5px 0 var(--ink);transition:transform .08s,box-shadow .08s,background .15s}
+.choice:hover:not(:disabled){background:#FFF8E6}
+.choice:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+.choice .key{flex:none;width:36px;height:36px;border-radius:10px;display:grid;place-items:center;color:#fff;font-weight:700;font-size:18px;border:2px solid var(--ink)}
+.choice:nth-child(1) .key{background:var(--c1)} .choice:nth-child(2) .key{background:var(--c2)}
+.choice:nth-child(3) .key{background:var(--c3)} .choice:nth-child(4) .key{background:var(--c4)}
+.choice .val{min-width:0;flex:1;display:flex;align-items:center;flex-wrap:wrap;line-height:1.35}
+.choice:disabled{cursor:default}
+.choice.right{background:var(--okbg);border-color:var(--ok);box-shadow:0 5px 0 var(--ok)}
+.choice.right .key{background:var(--ok)}
+.choice.wrong{background:var(--badbg);border-color:var(--bad);box-shadow:0 5px 0 var(--bad);animation:shake .35s}
+.choice.wrong .key{background:var(--bad)}
+.choice.dim{opacity:.5}
+@keyframes shake{25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-3px)}}
+
+.fb{margin-top:18px;border-radius:16px;border:2.5px solid var(--ok);background:var(--okbg);padding:14px 16px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:start;animation:pop .25s ease-out}
+.fb.bad{border-color:var(--bad);background:var(--badbg)}
+.fb .ic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--ok);grid-row:span 2}
+.fb.bad .ic{background:var(--bad)}
+.fb .ic svg{width:22px;height:22px;stroke:#fff;stroke-width:3.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.fb h3{margin:0;font-size:20px;color:var(--ok)}
+.fb.bad h3{color:var(--bad)}
+.fb .ex{font-size:16px;line-height:1.9}
+.fb .ex .fr{font-size:.95em}
+.fb .row{grid-column:1/-1;display:flex;justify-content:flex-end;margin-top:8px}
+@keyframes pop{from{transform:scale(.96);opacity:.4}to{transform:none;opacity:1}}
+.hint{text-align:center;color:var(--muted);font-size:13px;margin-top:14px}
+
+/* ---------- result ---------- */
+.result{text-align:center}
+.result .big-stars{display:flex;justify-content:center;gap:10px;margin:8px 0 6px}
+.result .big-stars svg{width:clamp(56px,14vw,78px);height:auto}
+.result .big-stars svg:nth-child(2){transform:translateY(-14px)}
+.result h2{margin:6px 0 2px;font-size:clamp(26px,5.5vw,34px)}
+.result .sc{font-size:20px;color:var(--muted);margin:0 0 6px}
+.result .sc b{color:var(--ink);font-size:30px}
+.recap{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:16px 0 20px}
+.recap span{width:34px;height:34px;border-radius:9px;border:2px solid var(--ink);display:grid;place-items:center;color:#fff;font-weight:700;font-size:14px}
+.actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.pop-star{animation:starpop .5s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes starpop{from{transform:scale(0) rotate(-40deg)}}
+.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:20}
+.confetti i{position:absolute;top:-20px;width:10px;height:16px;border-radius:3px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+
+@media (max-width:560px){
+  .choices{grid-template-columns:1fr}
+  .choice{min-height:64px}
+  .lv{grid-template-columns:auto 1fr;}
+  .lv .act{grid-column:1/-1}
+  .lv .act .btn{width:100%}
+  .lockmsg{max-width:none;display:flex;gap:6px;align-items:center;justify-content:center}
+  .lockmsg svg{margin:0}
+  .path::before{left:37px}
+  .dots{gap:4px}
+  .dot{height:26px;font-size:12px;border-radius:7px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="app">
+  <!-- MAP -->
+  <section id="scr-map">
+    <header class="hero">
+      <svg class="logo" viewBox="0 0 100 100" aria-hidden="true">
+        <circle cx="50" cy="50" r="46" fill="#fff" stroke="#1F2A44" stroke-width="4"/>
+        <path d="M50 50 L50 4 A46 46 0 0 1 96 50 Z" fill="#FF8A3D" stroke="#1F2A44" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M50 50 L96 50 A46 46 0 0 1 50 96 Z" fill="#4C7DF0" stroke="#1F2A44" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M50 50 L50 96 A46 46 0 0 1 4 50 Z" fill="#FFC23D" stroke="#1F2A44" stroke-width="4" stroke-linejoin="round"/>
+        <circle cx="28" cy="33" r="4" fill="#1F2A44"/><circle cx="72" cy="33" r="0" />
+      </svg>
+      <div>
+        <h1>ภารกิจ<b>เศษส่วน</b></h1>
+        <p>เกมฝึกเศษส่วน ชั้นประถมศึกษาปีที่ 4 · 5 ด่าน ด่านละ 10 ข้อ</p>
+        <div class="meta">
+          <span class="chip"><svg viewBox="0 0 24 24"><path class="star-on" d="M12 2.5l2.9 6 6.6.8-4.9 4.6 1.3 6.5L12 17.2l-5.9 3.2 1.3-6.5L2.5 9.3l6.6-.8z"/></svg><span id="totalStars">0 / 15</span></span>
+          <span class="chip">ตอบถูก 6 ข้อขึ้นไป เพื่อเปิดด่านต่อไป</span>
+        </div>
+      </div>
+    </header>
+    <ol class="path" id="levelList"></ol>
+    <div class="lv mixcard" style="--lc:var(--ink)">
+      <div class="badge"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h3.5c2 0 3 1 4.5 3.5S13.5 17 15.5 17H21M3 17h3.5c1.3 0 2.2-.5 3-1.4M14 8.4c.7-.9 1.6-1.4 2.9-1.4H21M18 4l3 3-3 3M18 14l3 3-3 3"/></svg></div>
+      <div class="info"><h2>ฝึกสุ่มรวมทุกด่าน</h2><p>สุ่มโจทย์ 10 ข้อจากทั้ง 5 ด่าน ได้ชุดใหม่ทุกครั้ง ไม่นับดาว</p></div>
+      <div class="act"><button class="btn go" type="button" id="mixBtn">สุ่มโจทย์</button></div>
+    </div>
+    <div class="foot">
+      <label for="teacher"><input type="checkbox" id="teacher"> โหมดครู: เปิดทุกด่าน</label>
+      <span id="resetArea"><button class="linkbtn" id="resetBtn" type="button">เริ่มเก็บดาวใหม่</button></span>
+    </div>
+  </section>
+
+  <!-- GAME -->
+  <section id="scr-game" hidden>
+    <div class="topbar">
+      <button class="iconbtn" id="backBtn" type="button" aria-label="กลับไปหน้าเลือกด่าน">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <div class="tb-title"><small id="lvLabel">ด่านที่ 1</small><strong id="lvName">รู้จักเศษส่วน</strong></div>
+      <div class="score" id="scoreBox">0 คะแนน</div>
+      <button class="iconbtn" id="muteBtn" type="button" aria-label="เปิด/ปิดเสียง"></button>
+    </div>
+    <div class="dots" id="dots"></div>
+    <article class="card" id="qcard">
+      <div class="qhead"><span class="tag" id="qTag">ข้อ 1</span><span id="qTopic"></span></div>
+      <div class="prompt" id="prompt"></div>
+      <div class="visual" id="visual"></div>
+      <div class="choices" id="choices"></div>
+      <div id="fbArea"></div>
+    </article>
+    <p class="hint">กดปุ่ม 1–4 บนแป้นพิมพ์เพื่อเลือกคำตอบ และ Enter เพื่อไปข้อต่อไป</p>
+  </section>
+
+  <!-- RESULT -->
+  <section id="scr-result" hidden>
+    <article class="card result" id="resultCard"></article>
+  </section>
+</div>
+
+<script>
+/* ---------- helpers ---------- */
+const R=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[R(0,a.length-1)];
+const gcd=(a,b)=>b?gcd(b,a%b):Math.abs(a);
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=R(0,i);[a[i],a[j]]=[a[j],a[i]]}return a};
+const sample=(arr,k)=>shuffle(arr.slice()).slice(0,k);
+const range=(a,b)=>{const r=[];for(let i=a;i<=b;i++)r.push(i);return r};
+const F=(n,d)=>`<span class="fr"><span>${n}</span><span>${d}</span></span>`;
+const M=(w,n,d)=>`<span class="mx"><span class="w">${w}</span>${F(n,d)}</span>`;
+const vk=(n,d)=>{const g=gcd(n,d)||1;return (n/g)+'/'+(d/g)};
+const raw=(n,d)=>(n>0&&d>0)?{html:F(n,d),key:n+'/'+d}:null;           // key = exact form
+const rv=(n,d)=>(n>0&&d>0)?{html:F(n,d),key:vk(n,d)}:null;            // key = value
+const mix=(w,n,d)=>(w>0&&n>0&&n<d)?{html:M(w,n,d),key:w+' '+n+'/'+d}:null;
+const num=n=>n>0?{html:`<span class="n">${n}</span>`,key:'n'+n}:null;
+const txt=s=>({html:s,key:s});
+const simp=(n,d)=>{const g=gcd(n,d);return d/g===1?`<span class="n">${n/g}</span>`:F(n/g,d/g)};
+const reducible=(n,d)=>gcd(n,d)>1;
+const TH=['ศูนย์','หนึ่ง','สอง','สาม','สี่','ห้า','หก','เจ็ด','แปด','เก้า','สิบ','สิบเอ็ด','สิบสอง','สิบสาม','สิบสี่','สิบห้า','สิบหก'];
+const readTH=(n,d)=>`เศษ${TH[n]}ส่วน${TH[d]}`;
+const NAMES=['น้องมะลิ','น้องต้นกล้า','น้องข้าวหอม','น้องภูผา','น้องใบเตย','น้องนที'];
+
+function build(correct,distractors,filler){
+  const out=[correct],keys=new Set([correct.key]);
+  for(const c of distractors){if(out.length>=4)break;if(c&&!keys.has(c.key)){out.push(c);keys.add(c.key)}}
+  let g=0;while(out.length<4&&filler&&g++<300){const c=filler();if(c&&!keys.has(c.key)){out.push(c);keys.add(c.key)}}
+  shuffle(out);return {choices:out,answer:out.indexOf(correct)};
+}
+
+/* ---------- drawings ---------- */
+function pieSVG(d,cls,size=128){
+  let p='';
+  if(d===1)p=`<circle cx="50" cy="50" r="46" class="${cls(0)}"/>`;
+  else for(let i=0;i<d;i++){
+    const a0=i/d*2*Math.PI-Math.PI/2,a1=(i+1)/d*2*Math.PI-Math.PI/2;
+    const x0=(50+46*Math.cos(a0)).toFixed(2),y0=(50+46*Math.sin(a0)).toFixed(2);
+    const x1=(50+46*Math.cos(a1)).toFixed(2),y1=(50+46*Math.sin(a1)).toFixed(2);
+    p+=`<path d="M50 50 L${x0} ${y0} A46 46 0 0 1 ${x1} ${y1} Z" class="${cls(i)}"/>`;
+  }
+  return `<svg class="shape" viewBox="0 0 100 100" width="${size}" height="${size}" aria-hidden="true">${p}</svg>`;
+}
+const pie=(k,d,size)=>pieSVG(d,i=>i<k?'on':'off',size);
+function barSVG(d,cls){
+  const w=296/d;let p='';
+  for(let i=0;i<d;i++)p+=`<rect x="${(2+i*w).toFixed(2)}" y="2" width="${w.toFixed(2)}" height="46" class="${cls(i)}"/>`;
+  return `<svg class="shape" viewBox="0 0 300 50" width="100%" aria-hidden="true">${p}</svg>`;
+}
+const bar=(k,d)=>barSVG(d,i=>i<k?'on':'off');
+const big=h=>`<div class="bigfr">${h}</div>`;
+
+/* ---------- question generators ---------- */
+const GEN={
+/* ด่าน 1 */
+pie(s){const d=R(3,Math.min(12,5+s)),k=R(1,d-1);
+  return {topic:'อ่านภาพเศษส่วน',prompt:'ส่วนที่ระบายสี คิดเป็นเศษส่วนเท่าใดของรูปทั้งหมด',visual:pie(k,d,140),
+  ...build(raw(k,d),[raw(d-k,d),raw(k,d-k),raw(d,k),raw(k,d+1),raw(k+1,d)],()=>raw(R(1,d),R(2,d+2))),
+  explain:`แบ่งรูปเป็น <b>${d}</b> ส่วนเท่า ๆ กัน (ตัวส่วน) ระบายสี <b>${k}</b> ส่วน (ตัวเศษ) จึงได้ ${F(k,d)}`}},
+bar(s){const d=R(3,Math.min(10,5+s)),k=R(1,d-1);
+  return {topic:'อ่านภาพเศษส่วน',prompt:'แถบนี้ระบายสีไปเท่าใดของแถบทั้งหมด',visual:`<div class="barwrap">${bar(k,d)}</div>`,
+  ...build(raw(k,d),[raw(d-k,d),raw(k,d-k),raw(d,k),raw(k,d+1)],()=>raw(R(1,d),R(2,d+2))),
+  explain:`แถบถูกแบ่งเป็น ${d} ช่องเท่า ๆ กัน ระบายสี ${k} ช่อง จึงเป็น ${F(k,d)} ของแถบ`}},
+parts(s){const d=R(3,12),k=R(1,d-1),top=R(0,1)===1,a=top?k:d;
+  return {topic:'ตัวเศษและตัวส่วน',prompt:`ตัว<b>${top?'เศษ':'ส่วน'}</b>ของเศษส่วนนี้คือข้อใด`,visual:big(F(k,d)),
+  ...build(num(a),[num(top?d:k),num(k+d),num(d-k)],()=>num(R(1,15))),
+  explain:`ตัวเลขที่อยู่<b>บนเส้น</b>คือตัวเศษ (${k}) ตัวเลขที่อยู่<b>ใต้เส้น</b>คือตัวส่วน (${d})`}},
+read(s){const d=R(3,12),k=R(1,d-1);
+  return {topic:'การอ่านเศษส่วน',prompt:'เศษส่วนนี้อ่านว่าอย่างไร',visual:big(F(k,d)),
+  ...build(txt(readTH(k,d)),[txt(readTH(d,k)),txt(readTH(k,d+1)),txt(readTH(k+1,d)),txt(readTH(d-k,d))],()=>txt(readTH(R(1,12),R(2,13)))),
+  explain:`อ่านตัวเศษก่อนแล้วตามด้วยตัวส่วน: ${F(k,d)} อ่านว่า “${readTH(k,d)}”`}},
+story(s){const d=R(4,10),k=R(1,d-1),left=R(0,1)===1,it=pick([['พิซซ่า','ชิ้น'],['เค้กวันเกิด','ชิ้น'],['ขนมชั้น','ชิ้น']]),nm=pick(NAMES);
+  const a=left?d-k:k;
+  return {topic:'โจทย์ปัญหา',prompt:`${nm}แบ่ง${it[0]} 1 ถาด เป็น ${d} ${it[1]}เท่า ๆ กัน แล้วกินไป ${k} ${it[1]} ${left?'<b>เหลือ</b>':'<b>กินไป</b>'}${it[0]}กี่ส่วนของถาด`,
+  visual:pie(k,d,130)+`<div class="legend"><span><i style="background:var(--fill)"></i>ส่วนที่กินไป</span><span><i style="background:#fff"></i>ส่วนที่เหลือ</span></div>`,
+  ...build(raw(a,d),[raw(d-a,d),raw(k,d-k),raw(d-k,k),raw(d,k)],()=>raw(R(1,d),R(2,d+2))),
+  explain:left?`ทั้งหมด ${d} ${it[1]} กินไป ${k} ${it[1]} เหลือ ${d}−${k} = ${d-k} ${it[1]} จึงเหลือ ${F(d-k,d)}`:`กินไป ${k} ${it[1]} จากทั้งหมด ${d} ${it[1]} จึงเป็น ${F(k,d)}`}},
+proper(s){const d=R(3,10),k=R(1,d-1);const imp=()=>{const m=R(1,9);return raw(R(m,m+7),m)};
+  return {topic:'เศษส่วนแท้',prompt:'ข้อใดเป็น<b>เศษส่วนแท้</b>',visual:'',
+  ...build(raw(k,d),[],imp),explain:`เศษส่วนแท้ คือเศษส่วนที่<b>ตัวเศษน้อยกว่าตัวส่วน</b> เช่น ${F(k,d)} เพราะ ${k} &lt; ${d}`}},
+
+/* ด่าน 2 */
+isImproper(s){const m=R(2,9),n=R(m,m+8);const prop=()=>{const d=R(2,12);return raw(R(1,d-1),d)};
+  return {topic:'เศษส่วนเกิน',prompt:'ข้อใดเป็น<b>เศษส่วนเกิน</b>',visual:'',
+  ...build(raw(n,m),[],prop),explain:`เศษส่วนเกิน คือเศษส่วนที่<b>ตัวเศษมากกว่าหรือเท่ากับตัวส่วน</b> เช่น ${F(n,m)} เพราะ ${n} ${n===m?'=':'&gt;'} ${m}`}},
+toMixed(s){const d=R(2,Math.min(9,3+s)),w=R(1,3),r=R(1,d-1),n=w*d+r;
+  return {topic:'เศษส่วนเกิน → จำนวนคละ',prompt:'เขียนเป็น<b>จำนวนคละ</b>ได้เท่าใด',visual:big(F(n,d)),
+  ...build(mix(w,r,d),[mix(w+1,r,d),mix(w,d-r,d),w<d&&r!==w?mix(r,w,d):null,w>1?mix(w-1,r,d):null],()=>mix(R(1,4),R(1,d-1),d)),
+  explain:`${n} ÷ ${d} = ${w} เศษ ${r} → จำนวนเต็มคือ ${w} เศษเป็นตัวเศษ ได้ ${M(w,r,d)}`}},
+toImproper(s){const d=R(2,Math.min(9,3+s)),w=R(1,3),r=R(1,d-1),n=w*d+r;
+  return {topic:'จำนวนคละ → เศษส่วนเกิน',prompt:'เขียนเป็น<b>เศษส่วนเกิน</b>ได้เท่าใด',visual:big(M(w,r,d)),
+  ...build(raw(n,d),[raw(w+r,d),raw(w*r+d,d),raw(n+1,d),raw(w*d-r,d),raw(n,w*d)],()=>raw(R(d+1,n+6),d)),
+  explain:`(${w} × ${d}) + ${r} = ${n} เป็นตัวเศษ ตัวส่วนคงเดิม ได้ ${F(n,d)}`}},
+picMixed(s){const d=R(2,Math.min(8,3+s)),w=R(1,2),r=R(1,d-1);
+  let v='';for(let i=0;i<w;i++)v+=pie(d,d,96);v+=pie(r,d,96);
+  return {topic:'ภาพจำนวนคละ',prompt:'รูปที่ระบายสีแสดงจำนวนใด (1 วง = 1 หน่วย)',visual:v,
+  ...build(mix(w,r,d),[mix(w+1,r,d),mix(w,d-r,d),raw(r,d),raw(w+r,d),mix(w,r,d+1)],()=>mix(R(1,3),R(1,d-1),d)),
+  explain:`ระบายเต็ม ${w} วง และอีก ${F(r,d)} ของวง จึงเป็น ${M(w,r,d)} (หรือ ${F(w*d+r,d)})`}},
+whole(s){const d=R(2,8),k=R(2,5);
+  return {topic:'เศษส่วนกับจำนวนนับ',prompt:'เศษส่วนนี้มีค่าเท่ากับจำนวนนับใด',visual:big(F(k*d,d)),
+  ...build(num(k),[num(k*d),num(d),num(k+1),num((k-1)*d)],()=>num(R(1,12))),
+  explain:`${k*d} ÷ ${d} = ${k} จึงได้ ${F(k*d,d)} = ${k}`}},
+
+/* ด่าน 3 */
+picEq(s){const b=R(2,5),a=R(1,b-1),k=R(2,3);
+  return {topic:'เศษส่วนที่เท่ากัน',prompt:'แถบสองแถบยาวเท่ากัน ระบายสีเท่ากัน แถบ<b>ล่าง</b>แสดงเศษส่วนใด',
+  visual:`<div class="barwrap"><span class="lbl">แถบบน = ${F(a,b)}</span>${bar(a,b)}${bar(a*k,b*k)}<span class="lbl">แถบล่าง = ?</span></div>`,
+  ...build(raw(a*k,b*k),[raw(a,b*k),raw(a*k,b),raw(a*k+1,b*k),raw(a*k-1,b*k),raw(b*k-a*k,b*k)],()=>raw(R(1,b*k),b*k)),
+  explain:`${F(a,b)} = ${F(a*k,b*k)} เพราะคูณทั้งตัวเศษและตัวส่วนด้วย ${k}`}},
+missingNum(s){const b=R(2,6),a=R(1,b-1),k=R(2,3+Math.floor(s/4));
+  return {topic:'หาตัวเศษที่หายไป',prompt:'จำนวนใดแทน <span class="q"><b>?</b></span> แล้วทำให้เศษส่วนเท่ากัน',visual:`<div class="eq">${F(a,b)}<span class="op">=</span>${F('<span class="q">?</span>',b*k)}</div>`,
+  ...build(num(a*k),[num(a+k),num(a*k+1),num(a*k-1),num(b*k-a*k),num(a+b*k-b)],()=>num(R(1,20))),
+  explain:`${b} × ${k} = ${b*k} ตัวเศษจึงต้องคูณ ${k} เช่นกัน: ${a} × ${k} = <b>${a*k}</b>`}},
+missingDen(s){const b=R(2,6),a=R(1,b-1),k=R(2,3+Math.floor(s/4));
+  return {topic:'หาตัวส่วนที่หายไป',prompt:'จำนวนใดแทน <span class="q"><b>?</b></span> แล้วทำให้เศษส่วนเท่ากัน',visual:`<div class="eq">${F(a,b)}<span class="op">=</span>${F(a*k,'<span class="q">?</span>')}</div>`,
+  ...build(num(b*k),[num(b+k),num(b*k+b),num(b*k-1),num(a*k+b)],()=>num(R(2,30))),
+  explain:`${a} × ${k} = ${a*k} ตัวส่วนจึงต้องคูณ ${k} เช่นกัน: ${b} × ${k} = <b>${b*k}</b>`}},
+simplest(s){let b,a;do{b=R(2,7);a=R(1,b-1)}while(gcd(a,b)!==1);const k=R(2,4);
+  return {topic:'เศษส่วนอย่างต่ำ',prompt:'ข้อใดเป็น<b>เศษส่วนอย่างต่ำ</b>ของเศษส่วนนี้',visual:big(F(a*k,b*k)),
+  ...build(raw(a,b),[k===4?raw(2*a,2*b):null,raw(a,b*k),raw(a*k,b),raw(a+1,b+1)],()=>raw(R(1,b+2),R(2,b+3))),
+  explain:`นำ ${k} มาหารทั้งตัวเศษและตัวส่วน: ${F(a*k,b*k)} = ${F(a,b)} ซึ่งหารต่อด้วยจำนวนเดียวกันไม่ได้แล้ว`}},
+notEqual(s){let b,a;do{b=R(2,6);a=R(1,b-1)}while(gcd(a,b)!==1);const m=R(2,4);
+  const c=pick([raw(a*m+1,b*m),raw(a*m,b*m+1),raw(a+1,b+1)]);
+  return {topic:'เศษส่วนที่เท่ากัน',prompt:`ข้อใด<b><u>ไม่</u></b>เท่ากับ ${F(a,b)}`,visual:'',
+  ...build(c,[raw(a*2,b*2),raw(a*3,b*3),raw(a*4,b*4),raw(a*5,b*5)],null),
+  explain:`ข้ออื่นได้จากการคูณทั้งตัวเศษและตัวส่วนของ ${F(a,b)} ด้วยจำนวนเดียวกัน แต่ ${c.html} ทำแบบนั้นไม่ได้ จึงไม่เท่ากัน`}},
+
+/* ด่าน 4 */
+most(s,least){const d=R(5,12),ns=sample(range(1,d-1),4),t=least?Math.min(...ns):Math.max(...ns);
+  const cs=ns.map(n=>raw(n,d)),c=cs[ns.indexOf(t)];
+  return {topic:'เปรียบเทียบ (ตัวส่วนเท่ากัน)',prompt:`ข้อใดมีค่า<b>${least?'น้อย':'มาก'}ที่สุด</b>`,visual:'',...build(c,cs,null),
+  explain:`ตัวส่วนเท่ากัน ให้ดูตัวเศษ ตัวเศษ${least?'น้อย':'มาก'}ที่สุดมีค่า${least?'น้อย':'มาก'}ที่สุด คือ ${F(t,d)}`}},
+least(s){return GEN.most(s,true)},
+sameNum(s,least){const n=R(1,3),ds=sample(range(n+1,n+10),4),t=least?Math.max(...ds):Math.min(...ds);
+  const cs=ds.map(d=>raw(n,d)),c=cs[ds.indexOf(t)];
+  return {topic:'เปรียบเทียบ (ตัวเศษเท่ากัน)',prompt:`ข้อใดมีค่า<b>${least?'น้อย':'มาก'}ที่สุด</b>`,visual:'',...build(c,cs,null),
+  explain:`ตัวเศษเท่ากัน ตัวส่วน<b>${least?'มาก':'น้อย'}</b>กว่า (แบ่งเป็นชิ้น${least?'เล็ก':'ใหญ่'}กว่า) จะมีค่า${least?'น้อย':'มาก'}กว่า ${F(n,t)} จึงมีค่า${least?'น้อย':'มาก'}ที่สุด`}},
+sameNumLeast(s){return GEN.sameNum(s,true)},
+related(s,least){
+  const b=pick([2,3,4]),dens=[b,2*b,4*b].filter(x=>x<=16),L=Math.max(...dens);
+  const fr=[],keys=new Set();while(fr.length<4){const d=pick(dens),n=R(1,d-1),k=vk(n,d);if(!keys.has(k)){keys.add(k);fr.push([n,d])}}
+  const vals=fr.map(([n,d])=>n*L/d),t=least?Math.min(...vals):Math.max(...vals),i=vals.indexOf(t);
+  const cs=fr.map(([n,d])=>raw(n,d));
+  return {topic:'เปรียบเทียบ (ตัวส่วนเป็นพหุคูณกัน)',prompt:`ข้อใดมีค่า<b>${least?'น้อย':'มาก'}ที่สุด</b>`,visual:'',...build(cs[i],cs,null),
+  explain:`ทำตัวส่วนให้เท่ากันเป็น ${L}: `+fr.map(([n,d])=>`${F(n,d)} = ${F(n*L/d,L)}`).join(' , ')+` → ข้อที่${least?'น้อย':'มาก'}ที่สุดคือ ${F(fr[i][0],fr[i][1])}`}},
+relatedLeast(s){return GEN.related(s,true)},
+statement(s){
+  const SYM={1:'&gt;','-1':'&lt;',0:'='};
+  const pair=()=>{const t=R(0,3);
+    if(t===0){const d=R(4,12),a=R(1,d-1);let c;do{c=R(1,d-1)}while(c===a);return[a,d,c,d]}
+    if(t===1){const n=R(1,4);const[b,d]=sample(range(n+1,n+9),2);return[n,b,n,d]}
+    if(t===2){const b=R(2,5),a=R(1,b-1),k=R(2,3);return R(0,1)?[a,b,a*k,b*k]:[a*k,b*k,a,b]}
+    const b=R(2,5),a=R(1,b-1),c=R(1,2*b-1);return R(0,1)?[a,b,c,2*b]:[c,2*b,a,b]};
+  const cmp=([a,b,c,d])=>Math.sign(a*d-c*b);
+  const st=(p,sym)=>({html:`${F(p[0],p[1])}<span class="op">${SYM[sym]}</span>${F(p[2],p[3])}`,key:p.join(',')+sym,p,sym});
+  const tp=pair(),tr=st(tp,cmp(tp));
+  const falseGen=()=>{const p=pair(),c=cmp(p);const w=pick([1,-1,0].filter(x=>x!==c));return st(p,w)};
+  const[a,b,c,d]=tp,L=b*d/gcd(b,d);
+  return {topic:'ประโยคสัญลักษณ์',prompt:'ข้อใด<b>ถูกต้อง</b>',visual:'',...build(tr,[],falseGen),
+  explain:`ทำตัวส่วนให้เท่ากัน: ${F(a,b)} = ${F(a*L/b,L)} และ ${F(c,d)} = ${F(c*L/d,L)} จึงได้ ${tr.html}`}},
+order(s){
+  let fr,why;
+  if(R(0,1)){const d=R(5,12);fr=sample(range(1,d-1),3).map(n=>[n,d]);why='ตัวส่วนเท่ากัน ตัวเศษน้อยกว่ามีค่าน้อยกว่า'}
+  else{const n=R(1,3);fr=sample(range(n+1,n+9),3).map(d=>[n,d]);why='ตัวเศษเท่ากัน ตัวส่วนมากกว่ามีค่าน้อยกว่า'}
+  const asc=fr.slice().sort((x,y)=>x[0]*y[1]-y[0]*x[1]);
+  const perms=[[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]];
+  const mk=p=>{const o=p.map(i=>asc[i]);return {html:o.map(([n,d])=>F(n,d)).join('<span class="op">,</span>'),key:p.join('')}};
+  const c=mk([0,1,2]);
+  return {topic:'เรียงลำดับเศษส่วน',prompt:'ข้อใดเรียงลำดับจาก<b>น้อยไปมาก</b>ได้ถูกต้อง',visual:'',
+  ...build(c,shuffle(perms.slice(1)).map(mk),null),explain:`${why} จึงเรียงได้ ${c.html}`}},
+
+/* ด่าน 5 */
+picAdd(s){const d=R(4,10),a=R(1,d-2),b=R(1,d-1-a);
+  return {topic:'การบวกเศษส่วน',prompt:`${F(a,d)} <span class="op">+</span> ${F(b,d)} เท่ากับเท่าใด`,
+  visual:`<div class="barwrap">${barSVG(d,i=>i<a?'on':i<a+b?'on2':'off')}</div><div class="legend"><span><i style="background:var(--fill)"></i>${F(a,d)}</span><span><i style="background:var(--fill2)"></i>${F(b,d)}</span></div>`,
+  ...build(rv(a+b,d),[rv(a+b,2*d),rv(a+b+1,d),a*b!==a+b?rv(a*b,d):null,rv(a+b,d+1)],()=>rv(R(1,d),R(2,d+2))),
+  explain:`ระบายสีรวม ${a} + ${b} = ${a+b} ช่อง จาก ${d} ช่อง ได้ ${F(a+b,d)}${reducible(a+b,d)?' = '+simp(a+b,d):''}`}},
+addSame(s){const d=R(3,Math.min(12,5+s)),a=R(1,d-2),b=R(1,d-1-a);
+  return {topic:'การบวกเศษส่วน',prompt:'หาผลบวก',visual:`<div class="eq">${F(a,d)}<span class="op">+</span>${F(b,d)}<span class="op">=</span><span class="q">?</span></div>`,
+  ...build(rv(a+b,d),[rv(a+b,2*d),rv(a+b+1,d),a*b!==a+b?rv(a*b,d):null,rv(a+b,d+1)],()=>rv(R(1,d),R(2,d+2))),
+  explain:`ตัวส่วนเท่ากัน นำตัวเศษมาบวกกัน ${a} + ${b} = ${a+b} ตัวส่วนคงเดิม ได้ ${F(a+b,d)}${reducible(a+b,d)?' = '+simp(a+b,d):''}`}},
+subSame(s){const d=R(3,12),a=R(2,d-1),b=R(1,a-1);
+  return {topic:'การลบเศษส่วน',prompt:'หาผลลบ',visual:`<div class="eq">${F(a,d)}<span class="op">−</span>${F(b,d)}<span class="op">=</span><span class="q">?</span></div>`,
+  ...build(rv(a-b,d),[rv(a+b,d),rv(a-b+1,d),rv(a-b,d-1),rv(b,d)],()=>rv(R(1,d),R(2,d+2))),
+  explain:`ตัวส่วนเท่ากัน นำตัวเศษมาลบกัน ${a} − ${b} = ${a-b} ตัวส่วนคงเดิม ได้ ${F(a-b,d)}${reducible(a-b,d)?' = '+simp(a-b,d):''}`}},
+subFromOne(s){const d=R(3,12),a=R(1,d-1);
+  return {topic:'การลบเศษส่วน',prompt:'หาผลลบ',visual:`<div class="eq"><span class="n">1</span><span class="op">−</span>${F(a,d)}<span class="op">=</span><span class="q">?</span></div>`,
+  ...build(rv(d-a,d),[rv(a,d),rv(d-a+1,d),rv(d-a-1,d),rv(d-a,d+1)],()=>rv(R(1,d),R(2,d+2))),
+  explain:`เปลี่ยน 1 ให้เป็น ${F(d,d)} แล้ว ${F(d,d)} − ${F(a,d)} = ${F(d-a,d)}${reducible(d-a,d)?' = '+simp(d-a,d):''}`}},
+addRelated(s){const b=R(2,5),k=b*3<=12?pick([2,3]):2,D=b*k,a=R(1,b-1),c=R(1,D-a*k);
+  return {topic:'บวกเศษส่วน (ตัวส่วนเป็นพหุคูณกัน)',prompt:'หาผลบวก',visual:`<div class="eq">${F(a,b)}<span class="op">+</span>${F(c,D)}<span class="op">=</span><span class="q">?</span></div>`,
+  ...build(rv(a*k+c,D),[rv(a+c,b+D),rv(a+c,D),rv(a*k+c+1,D),rv(a*k+c,b)],()=>rv(R(1,D),R(2,D+2))),
+  explain:`ทำ ${F(a,b)} ให้มีตัวส่วนเป็น ${D}: ${F(a,b)} = ${F(a*k,D)} แล้ว ${F(a*k,D)} + ${F(c,D)} = ${F(a*k+c,D)}${reducible(a*k+c,D)?' = '+simp(a*k+c,D):''}`}},
+subRelated(s){const b=R(2,5),k=b*3<=12?pick([2,3]):2,D=b*k,a=R(1,b-1),c=R(1,a*k-1||1);
+  if(a*k-c<=0)return GEN.subSame(s);
+  return {topic:'ลบเศษส่วน (ตัวส่วนเป็นพหุคูณกัน)',prompt:'หาผลลบ',visual:`<div class="eq">${F(a,b)}<span class="op">−</span>${F(c,D)}<span class="op">=</span><span class="q">?</span></div>`,
+  ...build(rv(a*k-c,D),[a!==c?rv(Math.abs(a-c),D):null,rv(a*k-c,b),rv(a*k-c+1,D),rv(a*k+c,D)],()=>rv(R(1,D),R(2,D+2))),
+  explain:`ทำ ${F(a,b)} ให้มีตัวส่วนเป็น ${D}: ${F(a,b)} = ${F(a*k,D)} แล้ว ${F(a*k,D)} − ${F(c,D)} = ${F(a*k-c,D)}${reducible(a*k-c,D)?' = '+simp(a*k-c,D):''}`}},
+storyOp(s){const d=R(4,10),nm=pick(NAMES);
+  if(R(0,1)){const a=R(1,d-2),b=R(1,d-1-a);
+    return {topic:'โจทย์ปัญหา',prompt:`${nm}ทาสีรั้วตอนเช้าได้ ${F(a,d)} ของรั้ว ตอนบ่ายทาเพิ่มอีก ${F(b,d)} ของรั้ว รวมทาสีรั้วไปแล้วเท่าไร`,visual:'',
+    ...build(rv(a+b,d),[rv(a+b,2*d),rv(Math.abs(a-b)||d,d),rv(a+b+1,d),rv(d-a-b,d)],()=>rv(R(1,d),d+1)),
+    explain:`รวมกันใช้การบวก: ${F(a,d)} + ${F(b,d)} = ${F(a+b,d)}${reducible(a+b,d)?' = '+simp(a+b,d):''} ของรั้ว`}}
+  const a=R(2,d-1),b=R(1,a-1);
+  return {topic:'โจทย์ปัญหา',prompt:`${nm}มีริบบิ้นยาว ${F(a,d)} เมตร ตัดไปผูกของขวัญ ${F(b,d)} เมตร เหลือริบบิ้นยาวกี่เมตร`,visual:'',
+  ...build(rv(a-b,d),[rv(a+b,d),rv(a-b+1,d),rv(a-b,2*d),rv(b,d)],()=>rv(R(1,d),d+1)),
+  explain:`เหลือใช้การลบ: ${F(a,d)} − ${F(b,d)} = ${F(a-b,d)}${reducible(a-b,d)?' = '+simp(a-b,d):''} เมตร`}},
+};
+
+const LEVELS=[
+ {name:'รู้จักเศษส่วน',desc:'อ่านภาพ บอกตัวเศษ ตัวส่วน และเศษส่วนแท้',color:'var(--c1)',icon:[1,4],
+  seq:['pie','parts','bar','read','pie','story','proper','bar','story','pie']},
+ {name:'เศษส่วนเกินและจำนวนคละ',desc:'เปลี่ยนไปมาระหว่างเศษส่วนเกินกับจำนวนคละ',color:'var(--c2)',icon:[5,4],
+  seq:['isImproper','toMixed','picMixed','toImproper','whole','toMixed','picMixed','toImproper','toMixed','toImproper']},
+ {name:'เศษส่วนที่เท่ากัน',desc:'หาเศษส่วนที่เท่ากัน และเศษส่วนอย่างต่ำ',color:'var(--c3)',icon:[2,4],
+  seq:['picEq','missingNum','missingDen','simplest','picEq','notEqual','missingNum','simplest','notEqual','simplest']},
+ {name:'เปรียบเทียบและเรียงลำดับ',desc:'มากกว่า น้อยกว่า เท่ากับ และเรียงลำดับเศษส่วน',color:'var(--c4)',icon:[3,4],
+  seq:['most','least','sameNum','statement','order','related','sameNumLeast','statement','relatedLeast','order']},
+ {name:'บวกและลบเศษส่วน',desc:'บวก ลบ เศษส่วน และโจทย์ปัญหา',color:'var(--c5)',icon:[3,8],
+  seq:['picAdd','addSame','subSame','storyOp','subFromOne','addRelated','addSame','subRelated','storyOp','addRelated']},
+];
+
+/* ---------- storage ---------- */
+const KEY='frac-p4-v1';
+let save={best:[0,0,0,0,0],teacher:false,mute:false};
+try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&Array.isArray(s.best))save=Object.assign(save,s)}catch(e){}
+const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(save))}catch(e){}};
+const unlocked=i=>save.teacher||i===0||save.best[i-1]>=1;
+
+/* ---------- sound ---------- */
+let ac=null;
+function tone(f,t0,dur,type='sine',vol=.18){
+  if(save.mute)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+  const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.value=f;
+  const t=ac.currentTime+t0;g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);
+  o.connect(g).connect(ac.destination);o.start(t);o.stop(t+dur)}catch(e){}
+}
+const sfx={ok(){tone(660,0,.15);tone(880,.12,.25)},bad(){tone(200,0,.25,'triangle',.22)},win(){[523,659,784,1047].forEach((f,i)=>tone(f,i*.12,.3))}};
+
+/* ---------- ui ---------- */
+const $=id=>document.getElementById(id);
+const STAR='M12 2.5l2.9 6 6.6.8-4.9 4.6 1.3 6.5L12 17.2l-5.9 3.2 1.3-6.5L2.5 9.3l6.6-.8z';
+const starsHTML=n=>`<span class="stars" aria-label="${n} ดาว">${[0,1,2].map(i=>`<svg viewBox="0 0 24 24"><path class="${i<n?'star-on':'star-off'}" d="${STAR}"/></svg>`).join('')}</span>`;
+const LOCK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+const KEYS=['ก','ข','ค','ง'];
+
+function show(id){['scr-map','scr-game','scr-result'].forEach(s=>$(s).hidden=s!==id);window.scrollTo(0,0)}
+
+function renderMap(){
+  $('teacher').checked=save.teacher;
+  $('totalStars').textContent=save.best.reduce((a,b)=>a+b,0)+' / 15 ดาว';
+  $('levelList').innerHTML=LEVELS.map((L,i)=>{
+    const open=unlocked(i);
+    return `<li class="lv ${open?'':'locked'}" style="--lc:${L.color}">
+      <div class="badge">${i+1}</div>
+      <div class="info"><h2>ด่านที่ ${i+1} · ${L.name}</h2><p>${L.desc}</p>${starsHTML(save.best[i])}</div>
+      <div class="act">${open?`<button class="btn go" type="button" data-lv="${i}">${save.best[i]?'เล่นอีกครั้ง':'เริ่มเล่น'}</button>`:`<div class="lockmsg">${LOCK}ผ่านด่าน ${i} ก่อน</div>`}</div>
+    </li>`}).join('');
+  show('scr-map');
+}
+$('levelList').addEventListener('click',e=>{const b=e.target.closest('[data-lv]');if(b)startLevel(+b.dataset.lv)});
+$('mixBtn').addEventListener('click',()=>startLevel(5));
+$('teacher').addEventListener('change',e=>{save.teacher=e.target.checked;persist();renderMap()});
+$('resetArea').addEventListener('click',e=>{
+  const t=e.target;
+  if(t.id==='resetBtn'){$('resetArea').innerHTML=`<span class="confirm">ล้างดาวทั้งหมด? <button class="btn" type="button" id="resetYes">ล้างเลย</button><button class="btn alt" type="button" id="resetNo">ยกเลิก</button></span>`}
+  else if(t.id==='resetYes'){save.best=[0,0,0,0,0];persist();restoreReset();renderMap()}
+  else if(t.id==='resetNo')restoreReset();
+});
+const restoreReset=()=>{$('resetArea').innerHTML='<button class="linkbtn" id="resetBtn" type="button">เริ่มเก็บดาวใหม่</button>'};
+
+const SPK_ON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
+const SPK_OFF='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>';
+const renderMute=()=>{$('muteBtn').innerHTML=save.mute?SPK_OFF:SPK_ON};
+$('muteBtn').addEventListener('click',()=>{save.mute=!save.mute;persist();renderMute()});
+$('backBtn').addEventListener('click',renderMap);
+
+let G=null;
+const MIX={name:'สุ่มรวมทุกด่าน',color:'var(--ink)'};
+const recent=new Set();               // โจทย์ที่เพิ่งเล่นไป จะไม่ออกซ้ำในรอบถัด ๆ ไป
+const sig=q=>q.prompt+'|'+q.visual+'|'+q.choices[q.answer].html;
+function makeRound(types){
+  const qs=[],seen=new Set();
+  types.forEach((t,s)=>{
+    let q,g=0;
+    do{q=GEN[t](s)}while((seen.has(sig(q))||recent.has(sig(q)))&&++g<40);
+    seen.add(sig(q));qs.push(q);
+  });
+  qs.forEach(q=>recent.add(sig(q)));
+  if(recent.size>120){const a=[...recent];recent.clear();a.slice(-60).forEach(k=>recent.add(k))}
+  return qs;
+}
+function startLevel(i){
+  const mixed=i===5,L=mixed?MIX:LEVELS[i];
+  // สุ่มชนิดโจทย์และลำดับใหม่ทุกรอบ
+  const types=mixed
+    ? shuffle(LEVELS.flatMap(l=>[...new Set(l.seq)])).slice(0,10)
+    : shuffle(L.seq.slice());
+  G={lv:i,qs:makeRound(types),idx:0,res:[],answered:false};
+  document.documentElement.style.setProperty('--lc',L.color);
+  $('lvLabel').textContent=mixed?'โหมดฝึก · ไม่นับดาว':`ด่านที่ ${i+1} จาก 5`;$('lvName').textContent=L.name;
+  renderMute();show('scr-game');renderQ();
+}
+function renderQ(){
+  const q=G.qs[G.idx];G.answered=false;
+  $('dots').innerHTML=G.qs.map((_,i)=>`<div class="dot ${i===G.idx?'cur':G.res[i]===true?'ok':G.res[i]===false?'bad':''}">${i+1}</div>`).join('');
+  $('scoreBox').textContent=G.res.filter(Boolean).length*10+' คะแนน';
+  $('qTag').textContent=`ข้อ ${G.idx+1}`;$('qTopic').textContent=q.topic;
+  $('prompt').innerHTML=q.prompt;$('visual').innerHTML=q.visual||'';
+  $('choices').innerHTML=q.choices.map((c,i)=>`<button class="choice" type="button" data-i="${i}"><span class="key">${KEYS[i]}</span><span class="val">${c.html}</span></button>`).join('');
+  $('fbArea').innerHTML='';
+}
+$('choices').addEventListener('click',e=>{const b=e.target.closest('.choice');if(b)answer(+b.dataset.i)});
+function answer(i){
+  if(!G||G.answered)return;G.answered=true;
+  const q=G.qs[G.idx],ok=i===q.answer;G.res[G.idx]=ok;
+  [...$('choices').children].forEach((b,j)=>{b.disabled=true;if(j===q.answer)b.classList.add('right');else if(j===i)b.classList.add('wrong');else b.classList.add('dim')});
+  ok?sfx.ok():sfx.bad();
+  const last=G.idx===G.qs.length-1;
+  const praise=pick(['ถูกต้อง เก่งมาก!','ยอดเยี่ยม!','สุดยอดไปเลย!','ถูกต้องนะครับ!']);
+  $('fbArea').innerHTML=`<div class="fb ${ok?'':'bad'}" role="status">
+    <div class="ic"><svg viewBox="0 0 24 24">${ok?'<path d="M5 12.5l4.5 4.5L19 7.5"/>':'<path d="M6 6l12 12M18 6L6 18"/>'}</svg></div>
+    <h3>${ok?praise:`ยังไม่ถูก คำตอบคือข้อ ${KEYS[q.answer]}`}</h3>
+    <div class="ex">${q.explain}</div>
+    <div class="row"><button class="btn" type="button" id="nextBtn">${last?'ดูผลคะแนน':'ข้อต่อไป'} →</button></div></div>`;
+  $('dots').children[G.idx].className='dot '+(ok?'ok':'bad');
+  $('scoreBox').textContent=G.res.filter(Boolean).length*10+' คะแนน';
+  $('nextBtn').addEventListener('click',next);
+  $('nextBtn').focus({preventScroll:true});
+  $('fbArea').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function next(){if(!G)return;if(G.idx<G.qs.length-1){G.idx++;renderQ();window.scrollTo({top:0,behavior:'smooth'})}else finish()}
+document.addEventListener('keydown',e=>{
+  if($('scr-game').hidden||!G)return;
+  if(!G.answered&&['1','2','3','4'].includes(e.key))answer(+e.key-1);
+  else if(G.answered&&e.key==='Enter'&&document.activeElement?.id!=='nextBtn'){e.preventDefault();next()}
+});
+
+function finish(){
+  const c=G.res.filter(Boolean).length,st=c>=10?3:c>=8?2:c>=6?1:0,i=G.lv,mixed=i===5;
+  const prev=mixed?st:save.best[i];if(st>prev){save.best[i]=st;persist()}
+  const msg=st===3?['เต็มสิบ! เก่งที่สุดเลย','ได้ครบ 3 ดาว'] :st===2?['เก่งมาก!','อีกนิดเดียวก็ได้ 3 ดาวแล้ว']:st===1?['ผ่านด่านแล้ว!','ลองเล่นอีกครั้งเพื่อเก็บดาวเพิ่ม']:['เกือบแล้ว สู้ ๆ นะ','ตอบถูก 6 ข้อขึ้นไปเพื่อผ่านด่าน'];
+  const hasNext=!mixed&&i<4&&unlocked(i+1);
+  if(mixed)msg[1]='โหมดฝึกสุ่มรวม กดเล่นอีกครั้งเพื่อรับโจทย์ชุดใหม่';
+  $('resultCard').innerHTML=`
+    <div class="big-stars">${[0,1,2].map(k=>`<svg viewBox="0 0 24 24" class="${k<st?'pop-star':''}" style="animation-delay:${k*.18}s"><path class="${k<st?'star-on':'star-off'}" d="${STAR}"/></svg>`).join('')}</div>
+    <h2>${msg[0]}</h2>
+    <p class="sc">${mixed?MIX.name:`ด่านที่ ${i+1} · ${LEVELS[i].name}`}<br>ตอบถูก <b>${c}</b> จาก 10 ข้อ (${c*10} คะแนน)</p>
+    <p style="margin:0;color:var(--muted)">${msg[1]}${st>prev&&prev>0?' · ทำลายสถิติเดิม!':''}</p>
+    <div class="recap">${G.res.map((r,k)=>`<span style="background:${r?'var(--ok)':'var(--bad)'}">${k+1}</span>`).join('')}</div>
+    <div class="actions">
+      ${hasNext?`<button class="btn" type="button" id="rNext">ไปด่านที่ ${i+2} →</button>`:''}
+      <button class="btn ${hasNext?'alt':''}" type="button" id="rAgain">สุ่มโจทย์ชุดใหม่ เล่นอีกครั้ง</button>
+      <button class="btn alt" type="button" id="rMap">กลับหน้าเลือกด่าน</button>
+    </div>`;
+  show('scr-result');
+  st>=1?sfx.win():sfx.bad();
+  if(st===3)confetti();
+  $('rAgain').onclick=()=>startLevel(i);$('rMap').onclick=renderMap;
+  if(hasNext)$('rNext').onclick=()=>startLevel(i+1);
+}
+function confetti(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const box=document.createElement('div');box.className='confetti';
+  const cols=['#FF6B5B','#F5A300','#13A99A','#4C7DF0','#9B5DE5','#FFC23D'];
+  for(let i=0;i<70;i++){const p=document.createElement('i');p.style.left=Math.random()*100+'%';p.style.background=pick(cols);
+    p.style.animationDuration=(1.8+Math.random()*1.8)+'s';p.style.animationDelay=Math.random()*.6+'s';box.appendChild(p)}
+  document.body.appendChild(box);setTimeout(()=>box.remove(),4500);
+}
+
+renderMap();
+</script>
+
+</body>
+</html>
